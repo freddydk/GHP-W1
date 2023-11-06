@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-    shell: powershell
+    shell: pwsh
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ env:
 
 jobs:
   Initialization:
-    runs-on: [ windows-latest ]
+    runs-on: [ ubuntu-latest ]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environmentsMatrixJson: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentsMatrixJson }}
@@ -45,16 +45,16 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: freddydk/AL-Go/Actions/WorkflowInitialize@main
+        uses: freddydk/AL-Go/Actions/WorkflowInitialize@nuget
         with:
-          shell: powershell
+          shell: pwsh
           eventId: "DO0091"
 
       - name: Read settings
         id: ReadSettings
-        uses: freddydk/AL-Go/Actions/ReadSettings@main
+        uses: freddydk/AL-Go/Actions/ReadSettings@nuget
         with:
-          shell: powershell
+          shell: pwsh
           get: type
 
       - name: Determine Workflow Depth
@@ -64,64 +64,64 @@ jobs:
 
       - name: Determine Projects To Build
         id: determineProjectsToBuild
-        uses: freddydk/AL-Go/Actions/DetermineProjectsToBuild@main
+        uses: freddydk/AL-Go/Actions/DetermineProjectsToBuild@nuget
         with:
-          shell: powershell
+          shell: pwsh
           maxBuildDepth: ${{ env.workflowDepth }}
 
       - name: Determine Delivery Target Secrets
         id: DetermineDeliveryTargetSecrets
-        uses: freddydk/AL-Go/Actions/DetermineDeliveryTargets@main
+        uses: freddydk/AL-Go/Actions/DetermineDeliveryTargets@nuget
         with:
-          shell: powershell
+          shell: pwsh
           projectsJson: '${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}'
           checkContextSecrets: 'N'
 
       - name: Read secrets
         id: ReadSecrets
-        uses: freddydk/AL-Go/Actions/ReadSecrets@main
+        uses: freddydk/AL-Go/Actions/ReadSecrets@nuget
         with:
-          shell: powershell
+          shell: pwsh
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: ${{ steps.DetermineDeliveryTargetSecrets.outputs.ContextSecrets }}
 
       - name: Determine Delivery Targets
         id: DetermineDeliveryTargets
-        uses: freddydk/AL-Go/Actions/DetermineDeliveryTargets@main
+        uses: freddydk/AL-Go/Actions/DetermineDeliveryTargets@nuget
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: powershell
+          shell: pwsh
           projectsJson: '${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}'
           checkContextSecrets: 'Y'
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: freddydk/AL-Go/Actions/DetermineDeploymentEnvironments@main
+        uses: freddydk/AL-Go/Actions/DetermineDeploymentEnvironments@nuget
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          shell: powershell
+          shell: pwsh
           getEnvironments: '*'
           type: 'CD'
 
   CheckForUpdates:
-    runs-on: [ windows-latest ]
+    runs-on: [ ubuntu-latest ]
     needs: [ Initialization ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Read settings
-        uses: freddydk/AL-Go/Actions/ReadSettings@main
+        uses: freddydk/AL-Go/Actions/ReadSettings@nuget
         with:
-          shell: powershell
+          shell: pwsh
           get: templateUrl
 
       - name: Check for updates to AL-Go system files
-        uses: freddydk/AL-Go/Actions/CheckForUpdates@main
+        uses: freddydk/AL-Go/Actions/CheckForUpdates@nuget
         with:
-          shell: powershell
+          shell: pwsh
           parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
           templateUrl: ${{ env.templateUrl }}
 
@@ -157,6 +157,7 @@ jobs:
     name: Deploy to ${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
+      url: ${{ steps.Deploy.outputs.environmentUrl }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -167,9 +168,9 @@ jobs:
           path: '.artifacts'
 
       - name: Read settings
-        uses: freddydk/AL-Go/Actions/ReadSettings@main
+        uses: freddydk/AL-Go/Actions/ReadSettings@nuget
         with:
-          shell: powershell
+          shell: pwsh
 
       - name: EnvName
         id: envName
@@ -180,18 +181,19 @@ jobs:
 
       - name: Read secrets
         id: ReadSecrets
-        uses: freddydk/AL-Go/Actions/ReadSecrets@main
+        uses: freddydk/AL-Go/Actions/ReadSecrets@nuget
         with:
-          shell: powershell
+          shell: pwsh
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects'
 
       - name: Deploy
-        uses: freddydk/AL-Go/Actions/Deploy@main
+        id: Deploy
+        uses: freddydk/AL-Go/Actions/Deploy@nuget
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: powershell
+          shell: pwsh
           environmentName: ${{ matrix.environment }}
           artifacts: '.artifacts'
           type: 'CD'
@@ -204,7 +206,7 @@ jobs:
       matrix:
         deliveryTarget: ${{ fromJson(needs.Initialization.outputs.deliveryTargetsJson) }}
       fail-fast: false
-    runs-on: [ windows-latest ]
+    runs-on: [ ubuntu-latest ]
     name: Deliver to ${{ matrix.deliveryTarget }}
     steps:
       - name: Checkout
@@ -216,24 +218,24 @@ jobs:
           path: '.artifacts'
 
       - name: Read settings
-        uses: freddydk/AL-Go/Actions/ReadSettings@main
+        uses: freddydk/AL-Go/Actions/ReadSettings@nuget
         with:
-          shell: powershell
+          shell: pwsh
 
       - name: Read secrets
         id: ReadSecrets
-        uses: freddydk/AL-Go/Actions/ReadSecrets@main
+        uses: freddydk/AL-Go/Actions/ReadSecrets@nuget
         with:
-          shell: powershell
+          shell: pwsh
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ matrix.deliveryTarget }}Context'
 
       - name: Deliver
-        uses: freddydk/AL-Go/Actions/Deliver@main
+        uses: freddydk/AL-Go/Actions/Deliver@nuget
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: powershell
+          shell: pwsh
           type: 'CD'
           projects: ${{ needs.Initialization.outputs.projects }}
           deliveryTarget: ${{ matrix.deliveryTarget }}
@@ -241,7 +243,7 @@ jobs:
 
   PostProcess:
     if: (!cancelled())
-    runs-on: [ windows-latest ]
+    runs-on: [ ubuntu-latest ]
     needs: [ Initialization, Build, Deploy, Deliver ]
     steps:
       - name: Checkout
@@ -249,8 +251,8 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: freddydk/AL-Go/Actions/WorkflowPostProcess@main
+        uses: freddydk/AL-Go/Actions/WorkflowPostProcess@nuget
         with:
-          shell: powershell
+          shell: pwsh
           eventId: "DO0091"
           telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
