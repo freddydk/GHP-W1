@@ -1,8 +1,4 @@
 {
   "type": "PTE",
-  "templateUrl": "https://github.com/freddydk/AL-Go@bcptreport",
-  "useCompilerFolder": true,
-  "doNotPublishApps": true,
-  "runs-on": "ubuntu-latest",
-  "githubRunner": "ubuntu-latest"
+  "templateUrl": "https://github.com/freddydk/AL-Go@bcptreport"
 }
