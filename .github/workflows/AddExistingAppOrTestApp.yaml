@@ -27,7 +27,7 @@ permissions:
 
 defaults:
   run:
-    shell: pwsh
+    shell: powershell
 
 env:
   ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
@@ -36,12 +36,12 @@ env:
 jobs:
   AddExistingAppOrTestApp:
     needs: [ ]
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ windows-latest ]
     steps:
       - name: Dump Workflow Information
         uses: freddydk/AL-Go/Actions/DumpWorkflowInfo@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,19 +50,19 @@ jobs:
         id: init
         uses: freddydk/AL-Go/Actions/WorkflowInitialize@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           eventId: "DO0090"
 
       - name: Read settings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: Read secrets
         id: ReadSecrets
         uses: freddydk/AL-Go/Actions/ReadSecrets@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: 'TokenForPush'
           useGhTokenWorkflowForPush: '${{ github.event.inputs.useGhTokenWorkflow }}'
@@ -70,7 +70,7 @@ jobs:
       - name: Add existing app
         uses: freddydk/AL-Go/Actions/AddExistingApp@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           project: ${{ github.event.inputs.project }}
@@ -81,6 +81,6 @@ jobs:
         if: always()
         uses: freddydk/AL-Go/Actions/WorkflowPostProcess@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           eventId: "DO0090"
           telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}

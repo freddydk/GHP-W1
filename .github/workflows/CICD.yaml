@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-    shell: pwsh
+    shell: powershell
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ env:
 jobs:
   Initialization:
     needs: [ ]
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ windows-latest ]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environmentsMatrixJson: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentsMatrixJson }}
@@ -44,7 +44,7 @@ jobs:
       - name: Dump Workflow Information
         uses: freddydk/AL-Go/Actions/DumpWorkflowInfo@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -55,14 +55,14 @@ jobs:
         id: init
         uses: freddydk/AL-Go/Actions/WorkflowInitialize@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           eventId: "DO0091"
 
       - name: Read settings
         id: ReadSettings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           get: type
 
       - name: Determine Workflow Depth
@@ -74,14 +74,14 @@ jobs:
         id: determineProjectsToBuild
         uses: freddydk/AL-Go/Actions/DetermineProjectsToBuild@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           maxBuildDepth: ${{ env.workflowDepth }}
 
       - name: Determine Delivery Target Secrets
         id: DetermineDeliveryTargetSecrets
         uses: freddydk/AL-Go/Actions/DetermineDeliveryTargets@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           projectsJson: '${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}'
           checkContextSecrets: 'false'
 
@@ -89,7 +89,7 @@ jobs:
         id: ReadSecrets
         uses: freddydk/AL-Go/Actions/ReadSecrets@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: ${{ steps.DetermineDeliveryTargetSecrets.outputs.ContextSecrets }}
 
@@ -99,7 +99,7 @@ jobs:
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: pwsh
+          shell: powershell
           projectsJson: '${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}'
           checkContextSecrets: 'true'
 
@@ -109,13 +109,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          shell: pwsh
+          shell: powershell
           getEnvironments: '*'
           type: 'CD'
 
   CheckForUpdates:
     needs: [ Initialization ]
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ windows-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -123,13 +123,13 @@ jobs:
       - name: Read settings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           get: templateUrl
 
       - name: Check for updates to AL-Go system files
         uses: freddydk/AL-Go/Actions/CheckForUpdates@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           templateUrl: ${{ env.templateUrl }}
           downloadLatest: true
 
@@ -182,7 +182,7 @@ jobs:
       - name: Read settings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: Setup Pages
         if: needs.Initialization.outputs.deployALDocArtifact == 1
@@ -191,7 +191,7 @@ jobs:
       - name: Build Reference Documentation
         uses: freddydk/AL-Go/Actions/BuildReferenceDocumentation@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           artifacts: '.artifacts'
 
       - name: Upload pages artifact
@@ -225,7 +225,7 @@ jobs:
       - name: Read settings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: EnvName
         id: envName
@@ -238,7 +238,7 @@ jobs:
         id: ReadSecrets
         uses: freddydk/AL-Go/Actions/ReadSecrets@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects'
 
@@ -248,7 +248,7 @@ jobs:
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: pwsh
+          shell: powershell
           environmentName: ${{ matrix.environment }}
           artifacts: '.artifacts'
           type: 'CD'
@@ -261,7 +261,7 @@ jobs:
       matrix:
         deliveryTarget: ${{ fromJson(needs.Initialization.outputs.deliveryTargetsJson) }}
       fail-fast: false
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ windows-latest ]
     name: Deliver to ${{ matrix.deliveryTarget }}
     steps:
       - name: Checkout
@@ -275,13 +275,13 @@ jobs:
       - name: Read settings
         uses: freddydk/AL-Go/Actions/ReadSettings@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
 
       - name: Read secrets
         id: ReadSecrets
         uses: freddydk/AL-Go/Actions/ReadSecrets@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ matrix.deliveryTarget }}Context'
 
@@ -290,7 +290,7 @@ jobs:
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
-          shell: pwsh
+          shell: powershell
           type: 'CD'
           projects: ${{ needs.Initialization.outputs.projects }}
           deliveryTarget: ${{ matrix.deliveryTarget }}
@@ -299,7 +299,7 @@ jobs:
   PostProcess:
     needs: [ Initialization, Build, Deploy, Deliver, DeployALDoc ]
     if: (!cancelled())
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ windows-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -308,6 +308,6 @@ jobs:
         id: PostProcess
         uses: freddydk/AL-Go/Actions/WorkflowPostProcess@bcptreport
         with:
-          shell: pwsh
+          shell: powershell
           eventId: "DO0091"
           telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
