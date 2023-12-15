@@ -5,6 +5,6 @@
   "bcptTestFolders": [],
   "installTestLibraries": true,
   "installTestApps": [
-    ":C:\\Applications\\BaseApp\\test\\Microsoft_Tests-SCM.ap"
+    ":C:\\Applications.US\\BaseApp\\test\\Microsoft_Tests-SCM.ap"
   ]
 }
