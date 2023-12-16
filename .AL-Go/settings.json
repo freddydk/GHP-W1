@@ -2,9 +2,5 @@
   "country": "us",
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": [],
-  "installTestLibraries": true,
-  "installTestApps": [
-    ":C:\\Applications\\BaseApp\\test\\Microsoft_Tests-SCM.app"
-  ]
+  "bcptTestFolders": []
 }
