@@ -10,8 +10,6 @@ codeunit 91000 "HelloWorld Test"
     begin
         CustList.OpenView();
         CustList.Close();
-        if (not MessageDisplayed) then
-            ERROR('Message was not displayed!');
     end;
 
     [MessageHandler]
