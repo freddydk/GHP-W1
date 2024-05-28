@@ -1,7 +1,7 @@
 {
   "type": "PTE",
   "templateUrl": "https://github.com/freddydk/AL-Go@nuget",
-  "templateSha": "95d9b3a6fa3c33112b378b25b56e7c12d8069103",
+  "templateSha": "c01708a3346ea0e3bf7a550dd6a0d9c389dc8993",
   "useCompilerFolder": true,
   "doNotPublishApps": true,
   "runs-on": "ubuntu-latest",
