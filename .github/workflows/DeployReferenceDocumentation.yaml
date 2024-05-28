@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   actions: read
   pages: write
   id-token: write
@@ -30,27 +30,19 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: freddydk/AL-Go/Actions/WorkflowInitialize@aldocbugs
+        uses: freddydk/AL-Go/Actions/WorkflowInitialize@nuget
         with:
           shell: powershell
           eventId: "DO0097"
-
+        
       - name: Read settings
-        uses: freddydk/AL-Go/Actions/ReadSettings@aldocbugs
+        uses: freddydk/AL-Go/Actions/ReadSettings@nuget
         with:
           shell: powershell
-
-      - name: Read secrets
-        id: ReadSecrets
-        uses: freddydk/AL-Go/Actions/ReadSecrets@aldocbugs
-        with:
-          shell: powershell
-          gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: 'GitHubPackagesContext'
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: freddydk/AL-Go/Actions/DetermineDeploymentEnvironments@aldocbugs
+        uses: freddydk/AL-Go/Actions/DetermineDeploymentEnvironments@nuget
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -60,12 +52,10 @@ jobs:
             
       - name: Setup Pages
         if: steps.DetermineDeploymentEnvironments.outputs.deployALDocArtifact == 1
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
         
       - name: Build Reference Documentation
-        uses: freddydk/AL-Go/Actions/BuildReferenceDocumentation@aldocbugs
-        env:
-          Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
+        uses: freddydk/AL-Go/Actions/BuildReferenceDocumentation@nuget
         with:
           shell: powershell
           artifacts: 'latest'
