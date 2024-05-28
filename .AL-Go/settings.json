@@ -1,6 +1,7 @@
 {
-  "country": "us",
+  "country": "w1",
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": []
+  "bcptTestFolders": [],
+  "artifact": "/sandbox/24.1.18927.20080/w1/closest"
 }
