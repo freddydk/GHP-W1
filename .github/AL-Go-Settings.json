@@ -5,5 +5,6 @@
   "useCompilerFolder": true,
   "doNotPublishApps": true,
   "runs-on": "ubuntu-latest",
-  "gitHubRunner": "ubuntu-latest"
+  "gitHubRunner": "ubuntu-latest",
+  "TrustedNuGetFeeds": [{"AuthTokenSecret":"GhTokenWorkflow","Url":"https://nuget.pkg.github.com/businesscentralapps/index.json"}]
 }
