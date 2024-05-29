@@ -3,6 +3,5 @@
   "appFolders": [],
   "testFolders": [],
   "bcptTestFolders": [],
-  "artifact": "/sandbox/24.1.18927.20080/w1/closest",
-  "TrustedNuGetFeeds": [{"AuthTokenSecret":"GhTokenWorkflow","Url":"https://nuget.pkg.github.com/businesscentralapps/index.json"}]
+  "artifact": "/sandbox/24.1.18927.20080/w1/closest"
 }
